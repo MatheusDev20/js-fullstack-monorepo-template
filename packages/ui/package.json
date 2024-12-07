@@ -9,7 +9,6 @@
     "dist"
   ],
   "exports": {
-    "./header": "./src/header.tsx",
     "./button": "./src/button.tsx"
   },
   "scripts": {
