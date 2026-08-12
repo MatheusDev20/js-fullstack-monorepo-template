@@ -7,12 +7,12 @@ import {
 } from '../utils/local-storage';
 
 type Props = {
-  children: React.ReactNode,
+  children: React.ReactNode;
 };
 
 type ContextProps = {
-  theme: string,
-  changeTheme: () => void,
+  theme: string;
+  changeTheme: () => void;
 };
 
 const ThemeContext = createContext<ContextProps | null>(null);

@@ -1,5 +1,5 @@
 type Props = React.SVGProps<SVGSVGElement> & {
-  tClass: string,
+  tClass: string;
 };
 
 export const SmileFace = ({ tClass }: Props) => {

@@ -1,48 +1,22 @@
-const { resolve } = require("node:path");
+import globals from 'globals';
 
-const project = resolve(process.cwd(), "tsconfig.json");
+import { config as baseConfig } from './base.js';
 
-/*
- * This is a custom ESLint configuration for use with
- * internal (bundled by their consumer) libraries
- * that utilize React.
+/**
+ * ESLint configuration for internal React libraries that are bundled by
+ * their consumer.
+ *
+ * @type {import("eslint").Linter.Config[]}
  */
-
-/** @type {import("eslint").Linter.Config} */
-module.exports = {
-  extends: ["eslint:recommended", "turbo", "plugin:prettier/recommended"],
-  plugins: ["only-warn"],
-  globals: {
-    React: true,
-    JSX: true,
-  },
-  env: {
-    browser: true,
-  },
-  settings: {
-    "import/resolver": {
-      typescript: {
-        project,
+export const config = [
+  ...baseConfig,
+  {
+    languageOptions: {
+      globals: {
+        ...globals.browser,
       },
     },
   },
-  ignorePatterns: [
-    // Ignore dotfiles
-    ".*.js",
-    "node_modules/",
-    "dist/",
-  ],
-  overrides: [
-    // Force ESLint to detect .tsx files
-    { files: ["*.js?(x)", "*.ts?(x)"] },
-  ],
-  rules: {
-    "prettier/prettier": [
-      "error",
-      {
-        "singleQuote": true,
-        "parser": "flow"
-      }
-    ],
-  }
-};
+];
+
+export default config;

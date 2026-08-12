@@ -1,6 +1,8 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import '@repo/tailwind-config/shared-styles.css';
+
+/* Classes are scanned from this app plus the shared UI package. */
+@source '../';
+@source '../../../../packages/ui/src';
 
 @layer utilities {
   .debug {
@@ -8,17 +10,9 @@
   }
 }
 
-
 body {
   margin: 0;
   padding: 0;
   line-height: 1.5;
   box-sizing: border-box;
 }
-
-/* [data-theme='dark'] {
-  --my-color: #000;
-}
-[data-theme='pink'] {
-  --my-color: #ffabc8;
-} */

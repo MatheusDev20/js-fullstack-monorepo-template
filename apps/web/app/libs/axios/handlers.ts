@@ -1,4 +1,4 @@
-import { BasicRequest, BasicResponse } from '@/app/@types/http';
+import { BasicRequest, BasicResponse } from '@/types';
 import { axiosInstance } from './instance';
 
 export const GET = async <T>(

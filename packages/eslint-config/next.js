@@ -1,44 +1,33 @@
-const { resolve } = require("node:path");
+import globals from 'globals';
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals';
+import nextTypescript from 'eslint-config-next/typescript';
 
-const project = resolve(process.cwd(), "tsconfig.json");
+import { config as baseConfig } from './base.js';
 
-/** @type {import("eslint").Linter.Config} */
-module.exports = {
-  extends: [
-    "eslint:recommended",
-    "plugin:prettier/recommended",
-    require.resolve("@vercel/style-guide/eslint/next"),
-    "turbo",
-  ],
-  globals: {
-    React: true,
-    JSX: true,
-  },
-  env: {
-    node: true,
-    browser: true,
-  },
-  plugins: ["only-warn"],
-  settings: {
-    "import/resolver": {
-      typescript: {
-        project,
+/**
+ * ESLint configuration for Next.js applications.
+ *
+ * @type {import("eslint").Linter.Config[]}
+ */
+export const config = [
+  ...baseConfig,
+  ...nextCoreWebVitals,
+  ...nextTypescript,
+  {
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+      },
+    },
+    settings: {
+      // Pinned on purpose: eslint-plugin-react's automatic version detection
+      // crashes under ESLint 10, and setting it here skips that code path.
+      react: {
+        version: '19.2',
       },
     },
   },
-  ignorePatterns: [
-    // Ignore dotfiles
-    ".*.js",
-    "node_modules/",
-  ],
-  overrides: [{ files: ["*.js?(x)", "*.ts?(x)"] }],
-  rules: {
-    "prettier/prettier": [
-      "error",
-      {
-        "singleQuote": true,
-        "parser": "flow"
-      }
-    ],
-  }
-};
+];
+
+export default config;

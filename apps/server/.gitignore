@@ -1,7 +1,11 @@
 # compiled output
 /dist
+/dist-lambda
 /node_modules
 /build
+
+# deploy artifacts
+*.zip
 
 # Logs
 logs

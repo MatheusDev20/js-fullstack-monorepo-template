@@ -16,9 +16,9 @@ export const setLocalStorageByKey = ({
   value,
   stringify,
 }: {
-  key: string,
-  value: any,
-  stringify: boolean,
+  key: string;
+  value: any;
+  stringify: boolean;
 }) => {
   try {
     const data = stringify && value ? JSON.stringify(value) : value;
@@ -32,8 +32,8 @@ export const getLocalStorageByKey = ({
   key,
   parse,
 }: {
-  key: string,
-  parse: boolean,
+  key: string;
+  parse: boolean;
 }) => {
   try {
     const Object = window.localStorage.getItem(key);

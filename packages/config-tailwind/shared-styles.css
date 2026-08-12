@@ -1,0 +1,22 @@
+/*
+ * Shared Tailwind + daisyUI setup for every app and package in the monorepo.
+ *
+ * Tailwind v4 is configured in CSS, so this file replaces the old
+ * tailwind.config.ts preset. Consumers import it and then declare their own
+ * `@source` paths — automatic source detection is turned off with
+ * `source(none)` so each package controls exactly what gets scanned.
+ */
+@import 'tailwindcss' source(none);
+
+@plugin 'daisyui' {
+  themes: cupcake --default, dark;
+}
+
+/* Keep the template's purple primary on the default theme. */
+@plugin 'daisyui/theme' {
+  name: 'cupcake';
+  --color-primary: #6c63ff;
+}
+
+/* Themes are swapped by writing [data-theme] (see app/context/theme-context). */
+@custom-variant dark ([data-theme='dark'] &);
