@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 #########################################################
-# Empacota a aplicação NestJS para deploy na Lambda.
+# Builds the Lambda bundle and applies the Terraform stack.
 #
-# Por enquanto o script SÓ gera o artefato (.zip) — o Terraform ainda não é
-# executado aqui. Quando o módulo estiver pronto, é só consumir o zip gerado
-# em ${SERVICE_NAME}.zip (mesmo diretório deste script).
+# There is no zip step: the lambda-wrapper module runs its own archive_file
+# over `source_dir`, so Terraform wants the dist-lambda/ DIRECTORY, not a .zip.
 #
-# Uso: ./deploy.sh
+# Usage:
+#   ./deploy.sh              # plan + apply (asks for confirmation)
+#   ./deploy.sh --plan       # plan only
+#   ./deploy.sh --auto       # apply with no confirmation (used by CI)
 #########################################################
 
 set -euo pipefail
@@ -14,32 +16,65 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVER_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
-SERVICE_NAME="server_nest_template"
-ZIP_PATH="${SCRIPT_DIR}/${SERVICE_NAME}.zip"
+MODE="apply"
+case "${1:-}" in
+  --plan) MODE="plan" ;;
+  --auto) MODE="auto" ;;
+  "") ;;
+  *) echo "❌ Unknown argument: $1 (expected --plan or --auto)"; exit 1 ;;
+esac
 
-if ! command -v zip >/dev/null 2>&1; then
-  echo "❌ O comando 'zip' não foi encontrado. Instale-o antes de rodar o deploy."
+#############################################
+# ----------------- Build ------------------ #
+# nest build (tsc) emits dist/ with decorator metadata intact; esbuild then
+# bundles dist/lambda.js into a single dist-lambda/index.js.
+#############################################
+
+echo "📦 Building the Lambda bundle..."
+cd "${SERVER_ROOT}"
+rm -rf dist dist-lambda
+pnpm run build:lambda
+
+if [[ ! -f "${SERVER_ROOT}/dist-lambda/index.js" ]]; then
+  echo "❌ Expected ${SERVER_ROOT}/dist-lambda/index.js — the build did not produce a bundle."
   exit 1
 fi
 
 #############################################
-# ----------------- Build ------------------ #
-# O nest build (tsc) gera o dist/ preservando o metadata dos decorators; em
-# seguida o esbuild empacota o dist/lambda.js num único dist-lambda/index.js.
+# --------------- Terraform ---------------- #
 #############################################
 
-echo "📦 Gerando o bundle da Lambda..."
-cd "${SERVER_ROOT}"
-rm -rf dist dist-lambda "${ZIP_PATH}"
-pnpm run build:lambda
+cd "${SCRIPT_DIR}"
 
-#############################################
-# ------------------ Zip ------------------- #
-#############################################
+echo "🔧 terraform init..."
+# State lives in S3 via a partial backend config — backend.hcl carries the
+# bucket name and profile (see backend.hcl.example).
+if [[ ! -f "${SCRIPT_DIR}/backend.hcl" ]]; then
+  echo "❌ Missing ${SCRIPT_DIR}/backend.hcl"
+  echo "   Create it from the template and fill in your state bucket:"
+  echo "     cp backend.hcl.example backend.hcl"
+  exit 1
+fi
 
-echo "🗜️  Compactando o artefato..."
-cd "${SERVER_ROOT}/dist-lambda"
-zip -q -r "${ZIP_PATH}" index.js
+terraform init -input=false -backend-config=backend.hcl
 
-echo "✅ Artefato gerado:"
-ls -lh "${ZIP_PATH}"
+# Tag the deploy with the current commit so it is identifiable in the console.
+TF_VAR_service_version="$(git rev-parse --short HEAD 2>/dev/null || echo dev)"
+export TF_VAR_service_version
+
+case "${MODE}" in
+  plan)
+    terraform plan -input=false
+    ;;
+  auto)
+    terraform apply -input=false -auto-approve
+    ;;
+  apply)
+    terraform apply -input=false
+    ;;
+esac
+
+if [[ "${MODE}" != "plan" ]]; then
+  echo "✅ Deployed. Health check:"
+  echo "   curl -s $(terraform output -raw function_url)health"
+fi

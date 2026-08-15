@@ -15,5 +15,17 @@
       "persistent": true
     }
   },
-  "globalEnv": ["NEXT_PUBLIC_BACKEND_URL"]
+  "globalEnv": [
+    "NEXT_PUBLIC_BACKEND_URL",
+    "NODE_ENV",
+    "PORT",
+    "DB_ENABLED",
+    "DB_HOST",
+    "DB_PORT",
+    "DB_USERNAME",
+    "DB_PASSWORD",
+    "DB_NAME",
+    "DB_SYNC",
+    "DB_ENTITIES"
+  ]
 }

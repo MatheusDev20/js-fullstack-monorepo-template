@@ -8,19 +8,22 @@ async function bootstrap() {
 
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
-  app.setGlobalPrefix(`api/${API_VERSION}`);
+  app.setGlobalPrefix(`api/${API_VERSION}`, { exclude: ['health'] });
 
   const localOrigin = {
     origin: 'http://localhost:3000',
     credentials: true,
   };
+
   process.env.NODE_ENV === 'production'
     ? app.enableCors()
     : app.enableCors(localOrigin);
 
   app.useGlobalPipes(new ValidationPipe());
   app.useGlobalFilters(new HttpExceptionFilter());
-  await app.listen(process.env.PORT ?? 3000);
+  // 3001, not 3000: apps/web owns 3000 (next dev's default) and both run under
+  // `turbo dev`, so sharing a default port makes one of them die on EADDRINUSE.
+  await app.listen(process.env.PORT ?? 3001);
 }
 
 bootstrap();

@@ -7,6 +7,16 @@
 # deploy artifacts
 *.zip
 
+# terraform (.terraform.lock.hcl IS committed so provider versions are pinned)
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+# local backend settings (contains your state bucket); the .example is committed
+backend.hcl
+crash.log
+
 # Logs
 logs
 *.log

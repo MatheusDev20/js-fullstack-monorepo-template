@@ -1,13 +1,17 @@
 {
-  "name": "recomendations",
+  "name": "js-fullstack-monorepo-template",
   "private": true,
   "scripts": {
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "db:up": "pnpm --filter @repo/server run db:up",
+    "db:down": "pnpm --filter @repo/server run db:down",
+    "db:reset": "pnpm --filter @repo/server run db:reset",
     "server:build:lambda": "pnpm --filter @repo/server run build:lambda",
-    "server:deploy": "bash apps/server/iac/terraform/deploy.sh"
+    "server:deploy": "bash apps/server/iac/terraform/deploy.sh",
+    "server:deploy:plan": "bash apps/server/iac/terraform/deploy.sh --plan"
   },
   "devDependencies": {
     "prettier": "^3.9.6",

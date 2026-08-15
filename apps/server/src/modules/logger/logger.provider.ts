@@ -1,11 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { LoggerFunctions } from 'src/@types';
 
+/**
+ * Extension point for app-specific logging. Extends the Nest logger so it can
+ * be injected anywhere via LoggerModule; add domain log helpers as needed.
+ */
 @Injectable()
-export class CustomLogger extends Logger implements LoggerFunctions {
-  generatedCompletion(completion: string) {
-    this.log(
-      `Generated Completion for \n ${JSON.stringify(completion)} Timestamp: ${new Date().toISOString()}`,
-    );
-  }
-}
+export class CustomLogger extends Logger {}
